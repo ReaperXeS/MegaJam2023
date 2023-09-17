@@ -6,6 +6,8 @@
 #include "Components/BoxComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/SplineComponent.h"
+#include "Components/SplineMeshComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ARxTronTrace::ARxTronTrace()
@@ -29,7 +31,7 @@ ARxTronTrace::ARxTronTrace()
 void ARxTronTrace::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("ARxTronTrace::OnOverlapBegin"));
-	if (IClanInterface* OtherActorClan = Cast<IClanInterface>(OtherActor); OtherActorClan != nullptr && OtherActorClan->GetClan() != GetClan())
+	if (IClanInterface* OtherActorClan = Cast<IClanInterface>(OtherActor); OtherActorClan != nullptr && (!bKillOtherClanOnly || OtherActorClan->GetClan() != GetClan()))
 	{
 		// Destroy the other actor
 		OtherActor->Destroy();
@@ -66,7 +68,7 @@ void ARxTronTrace::BeginPlay()
 	// Create a timer to destroy the trace
 	if (LifeSpan > 0.0f)
 	{
-		GetWorldTimerManager().SetTimer(TimerHandle, this, &ARxTronTrace::DestroyPointOnTrace, LifeSpan, false);
+		// GetWorldTimerManager().SetTimer(TimerHandle, this, &ARxTronTrace::DestroyPointOnTrace, LifeSpan, false);
 	}
 }
 
@@ -79,6 +81,7 @@ void ARxTronTrace::OnConstruction(const FTransform& Transform)
 		// Set Material Instance
 		InstancedStaticMeshComponent->SetMaterial(0, GetMeshMaterialInstance());
 		InstancedStaticMeshComponent->ClearInstances();
+		SplineMeshComponents.Empty();
 		const auto VectorDiff = InstancedStaticMeshComponent->GetStaticMesh()->GetBoundingBox().Max - InstancedStaticMeshComponent->GetStaticMesh()->GetBoundingBox().Min;
 		CalculatedSpacing = VectorDiff.X + MeshOffset;
 		const int32 NumberOfInstances = SplineComponent->GetSplineLength() / CalculatedSpacing;
@@ -86,12 +89,24 @@ void ARxTronTrace::OnConstruction(const FTransform& Transform)
 		// Loop through spline points and instance mesh
 		for (int32 i = 0; i < NumberOfInstances; i++)
 		{
-			// Get location and rotation at spline point
-			const auto Location = SplineComponent->GetLocationAtDistanceAlongSpline(i * CalculatedSpacing, ESplineCoordinateSpace::Local);
-			const auto Rotation = SplineComponent->GetRotationAtDistanceAlongSpline(i * CalculatedSpacing, ESplineCoordinateSpace::Local);
+			// Get location and rotation at spline point			
+			const auto StartLocation = SplineComponent->GetLocationAtDistanceAlongSpline(i * CalculatedSpacing, ESplineCoordinateSpace::Local);
+			const auto StartRotation = SplineComponent->GetRotationAtDistanceAlongSpline(i * CalculatedSpacing, ESplineCoordinateSpace::Local);
 
 			// Add instance to InstancedStaticMeshComponent
-			InstancedStaticMeshComponent->AddInstance(FTransform(Rotation, Location, FVector(1.0f)));
+			InstancedStaticMeshComponent->AddInstance(FTransform(StartRotation, StartLocation, FVector(1.0f)));
+
+			// Create Spline Mesh Component
+			// const auto StartLocation = SplineComponent->GetLocationAtDistanceAlongSpline(i * CalculatedSpacing, ESplineCoordinateSpace::World);
+			// const auto StartTangent = SplineComponent->GetTangentAtDistanceAlongSpline(i * CalculatedSpacing, ESplineCoordinateSpace::World);
+			// const auto EndLocation = SplineComponent->GetLocationAtDistanceAlongSpline((i + 1) * CalculatedSpacing, ESplineCoordinateSpace::World);
+			// const auto EndTangent = SplineComponent->GetTangentAtDistanceAlongSpline((i + 1) * CalculatedSpacing, ESplineCoordinateSpace::World);
+			
+			// USplineMeshComponent* SplineMesh = NewObject<USplineMeshComponent>(this);
+			// SplineMeshComponents.Add(SplineMesh);
+			// SplineMesh->SetMobility(EComponentMobility::Movable);
+			// SplineMesh->SetStaticMesh(TraceMesh);
+			// SplineMesh->SetStartAndEnd(StartLocation, StartTangent, EndLocation, EndTangent);					
 		}
 	}
 }
@@ -103,12 +118,11 @@ void ARxTronTrace::Tick(float DeltaTime)
 
 	// Accumulate time
 	AccumulatedTimeSinceLastSpawn += DeltaTime;
-	if (GetOwner() && SpawnPointFrequency > 0.f && AccumulatedTimeSinceLastSpawn > SpawnPointFrequency)
+	if (SpawnSceneComponent && SpawnPointFrequency > 0.f && AccumulatedTimeSinceLastSpawn > SpawnPointFrequency)
 	{
 		AccumulatedTimeSinceLastSpawn = 0.0f;
 		// Spawn a point where at the location of the owner
-		const auto OwnerLocation = GetOwner()->GetActorLocation();
-		SplineComponent->AddSplinePoint(OwnerLocation, ESplineCoordinateSpace::World);
+		SplineComponent->AddSplinePoint(SpawnSceneComponent->GetComponentLocation(), ESplineCoordinateSpace::World);
 
 		// Validate if we need to instance a new mesh
 		const int32 NumberOfInstances = SplineComponent->GetSplineLength() / CalculatedSpacing;
@@ -121,6 +135,25 @@ void ARxTronTrace::Tick(float DeltaTime)
 
 			// Add instance to InstancedStaticMeshComponent
 			InstancedStaticMeshComponent->AddInstance(FTransform(Rotation, Location, FVector(1.0f)));
+		}
+	}
+
+	bool bRemovedPoints = false;
+	// Validate if we need to reduce length of spline
+	while (MaxSplineLenght > 0.f && SplineComponent->GetSplineLength() > MaxSplineLenght)
+	{
+		// Reduce the length of the spline
+		SplineComponent->RemoveSplinePoint(0, true);
+		bRemovedPoints = true;
+	}
+
+	if (bRemovedPoints)
+	{
+		const int32 NumberOfInstances = SplineComponent->GetSplineLength() / CalculatedSpacing;
+		while (NumberOfInstances < InstancedStaticMeshComponent->GetInstanceCount())
+		{
+			// Remove the 1st instance
+			InstancedStaticMeshComponent->RemoveInstance(0);
 		}
 	}
 }

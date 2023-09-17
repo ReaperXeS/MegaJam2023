@@ -1,6 +1,6 @@
 ﻿#include "ClanInterface.h"
 
-TObjectPtr<UMaterialInstance> IClanInterface::GetMeshMaterialInstance()
+UMaterialInstance* IClanInterface::GetMeshMaterialInstance()
 {
 	// Get the material instance from path
 	switch (GetClan())

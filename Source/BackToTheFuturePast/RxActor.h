@@ -25,6 +25,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RxTronTrace")
 	EClan Clan = EClan::Pink;
 
+	// Tail Length increase size in centimeters when the player eats an energy
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RxTronTrace")
+	int32 TailLengthIncreaseSize = 100;
+
+	// RxTrace Actor
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RxTronTrace")
+	TSubclassOf<class ARxTronTrace> RxTronTraceActor;
 public:
 	/******************************/
 	/*	IClanInterface			  */

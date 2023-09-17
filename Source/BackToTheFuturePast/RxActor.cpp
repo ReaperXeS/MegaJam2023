@@ -1,5 +1,7 @@
 #include "RxActor.h"
 
+#include "RxTronTrace.h"
+
 ARxActor::ARxActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -9,7 +11,6 @@ ARxActor::ARxActor()
 void ARxActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 EClan ARxActor::GetClan()

@@ -30,5 +30,6 @@ public:
 	virtual EClan GetClanEnum();
 	
 	virtual  EClan GetClan() = 0;
-	virtual TObjectPtr<UMaterialInstance> GetMeshMaterialInstance();
+	UFUNCTION(BlueprintCallable, Category = "ClanInterface")
+	virtual UMaterialInstance* GetMeshMaterialInstance();
 };

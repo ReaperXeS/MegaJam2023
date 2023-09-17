@@ -42,6 +42,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RxTronTrace")
 	class UInstancedStaticMeshComponent* InstancedStaticMeshComponent;
 
+	// Spline Mesh Component
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RxTronTrace")
+	TArray<class USplineMeshComponent*> SplineMeshComponents;
+
 	// Mesh offset
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RxTronTrace")
 	float MeshOffset = 0.0f;
@@ -61,6 +65,26 @@ protected:
 	// Spawn Point Frequency (in seconds), if 0 then it will not spawn points at all
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = true), Category = "RxTronTrace")
 	float SpawnPointFrequency = 0.0f;
+
+	// Owner relative transform for Spawn Point
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = true), Category = "RxTronTrace")
+	FTransform SpawnPointRelativeTransformToOwner;
+
+	// Spawn Scene Component of the Owner
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = true), Category = "RxTronTrace")
+	class USceneComponent* SpawnSceneComponent;
+
+	// Maximum Lenght of the Spline in Centimeters
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = true), Category = "RxTronTrace")
+	float MaxSplineLenght = 1000.0f;
+
+	// Mesh to use for the trace
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = true), Category = "RxTronTrace")
+	class UStaticMesh* TraceMesh;
+
+	// Boolean to kill other clan only or everything
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = true), Category = "RxTronTrace")
+	bool bKillOtherClanOnly = true;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
