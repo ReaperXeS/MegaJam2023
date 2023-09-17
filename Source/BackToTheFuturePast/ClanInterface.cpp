@@ -21,3 +21,8 @@ TObjectPtr<UMaterialInstance> IClanInterface::GetMeshMaterialInstance()
 			return LoadObject<UMaterialInstance>(nullptr, TEXT("/Game/TronRacing/Materials/MI_Tron_Pink.MI_Tron_Pink"));
 	}
 }
+
+EClan IClanInterface::GetClanEnum()
+{
+	return GetClan();
+}

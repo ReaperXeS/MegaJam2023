@@ -13,7 +13,7 @@ enum class EClan : uint8
 	Gold
 };
 
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, meta = (CannotImplementInterfaceInBlueprint))
 class UClanInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -26,6 +26,9 @@ class BACKTOTHEFUTUREPAST_API IClanInterface
 {
 	GENERATED_BODY()
 public:
-	virtual EClan GetClan() = 0;
+	UFUNCTION(BlueprintCallable, Category = "ClanInterface")
+	virtual EClan GetClanEnum();
+	
+	virtual  EClan GetClan() = 0;
 	virtual TObjectPtr<UMaterialInstance> GetMeshMaterialInstance();
 };
