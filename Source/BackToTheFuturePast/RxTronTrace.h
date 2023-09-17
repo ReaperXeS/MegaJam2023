@@ -51,7 +51,7 @@ protected:
 	float MeshOffset = 0.0f;
 
 	// Clan Id
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RxTronTrace")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = true), Category = "RxTronTrace")
 	EClan Clan = EClan::Pink;
 
 	// Life Span of the trace
@@ -65,10 +65,6 @@ protected:
 	// Spawn Point Frequency (in seconds), if 0 then it will not spawn points at all
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = true), Category = "RxTronTrace")
 	float SpawnPointFrequency = 0.0f;
-
-	// Owner relative transform for Spawn Point
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = true), Category = "RxTronTrace")
-	FTransform SpawnPointRelativeTransformToOwner;
 
 	// Spawn Scene Component of the Owner
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = true), Category = "RxTronTrace")
