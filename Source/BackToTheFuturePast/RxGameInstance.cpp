@@ -48,6 +48,12 @@ void URxGameInstance::UpdatePlayerName(FString NewPlayerName)
 	CurrentPlayerScore.PlayerName = NewPlayerName;
 }
 
+void URxGameInstance::UpdatePlayerClan(EClan NewPlayerClan)
+{
+	CurrentPlayerScore.PlayerClan = NewPlayerClan;
+	CurrentPlayerClan = NewPlayerClan;
+}
+
 void URxGameInstance::SavePlayerScore()
 {
 	// Validate High Scores and Save if necessary

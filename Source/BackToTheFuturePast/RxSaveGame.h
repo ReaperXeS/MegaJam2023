@@ -7,6 +7,8 @@
 #include "RxSaveGame.generated.h"
 
 
+enum class EClan : uint8;
+
 USTRUCT(BlueprintType)
 struct FRxSaveGameData
 {
@@ -23,6 +25,10 @@ struct FRxSaveGameData
 	// Score Date
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RxTronTrace")
 	FDateTime ScoreDate;
+
+	// Clan of User
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RxTronTrace")
+	EClan PlayerClan;
 };
 /**
  * 
